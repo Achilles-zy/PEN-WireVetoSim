@@ -80,7 +80,6 @@ PENDetectorConstruction::PENDetectorConstruction():
 	fConfine = "Wire";
 	fType = "A1";
 	fLayerNb = 1;
-	fLayerNbS = "1";
 	fWirePos = G4ThreeVector();
 	fWireRadius = 0.7 * mm;
 	fWireLength = 20 * cm;
@@ -112,10 +111,10 @@ void PENDetectorConstruction::SetLayerNb(G4int nb) {
 	G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
-void PENDetectorConstruction::SetLayerNbS(G4String nbs) {
-	fLayerNbS = nbs;
-	G4RunManager::GetRunManager()->ReinitializeGeometry();
-}
+//void PENDetectorConstruction::SetLayerNbS(G4String nbs) {
+//	fLayerNbS = nbs;
+//	G4RunManager::GetRunManager()->ReinitializeGeometry();
+//}
 
 void PENDetectorConstruction::DefineMat() 
 {
@@ -730,13 +729,13 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 
   
   //PEN shell scintilator
-  if (fLayerNbS == "1") {
+  if (fLayerNb == 1) {
 	  auto solidPENShell = new G4Tubs("solidPENShell", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
 	  logicPENShell = new G4LogicalVolume(solidPENShell, matPEN, "logicPENShell");
 	  physPENShell = new G4PVPlacement(0, G4ThreeVector(), logicPENShell, "PENShell", logicEnv, false, 0, checkOverlaps);
   }
 
-  else if (fLayerNbS == "2") {
+  else if (fLayerNb == 2) {
 	  auto solidPENShell_0 = new G4Tubs("solidPENShell_0", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
 	  auto solidPENShell_1 = new G4Tubs("solidPENShell_1", outerGeRadius + LN2Gap + ShellThickness + wireradius * 2, outerGeRadius + LN2Gap + ShellThickness + wireradius * 2 + ShellThickness, GeHeight1, 0., twopi);
 	  G4MultiUnion* solidPENShell = new G4MultiUnion("solidPENShell");
