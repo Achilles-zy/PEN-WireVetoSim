@@ -23,17 +23,18 @@ public:
     ~PENDetectorMessenger();
 
     virtual void SetNewValue(G4UIcommand*, G4String);
+    virtual void SetNewValue(G4UIcommand*, G4int);
 
 private:
 
     PENDetectorConstruction* fDetCons;
-
 
     G4UIdirectory* fPENDir;
     G4UIdirectory* fDetDir;
 
     G4UIcmdWithAString* commandSetWireType;
     G4UIcmdWithAString* commandSetConfine;
+    G4UIcmdWithAnInteger* commandSetLayerNb;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

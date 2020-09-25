@@ -68,7 +68,7 @@ set(PENVetoSim_SCRIPTS
   #filegen_point_source.py
   #scan.c
   vis.mac
-  batch-A1Harness-Radioactive.mac
+  batch-A1Wire-Radioactive.mac
   batch-A2Wire-Radioactive.mac
   src1.mac
   )

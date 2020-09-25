@@ -39,6 +39,7 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
         void SetABS(G4double);
         void SetWireType(G4String);
         void SetConfine(G4String);
+        void SetLayerNb(G4int);
 
         G4ThreeVector GetWirePos() {
             return fWirePos;
@@ -49,6 +50,10 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
         }
         G4String GetConfine() {
             return fConfine;
+        }
+
+        G4int GetLayerNb() {
+            return fLayerNb;
         }
     
     private:
@@ -67,6 +72,7 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
 		G4VPhysicalVolume* SiPM_9;
 		G4VPhysicalVolume* SiPM_10;
 		G4VPhysicalVolume* SiPM_11;
+        G4LogicalVolume* logicPENShell;
 
         PENMaterials* matconstructor;
 
@@ -119,6 +125,7 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
         G4String fABSFile;
         G4String fType;
         G4String fConfine;
+        G4int fLayerNb;
         G4ThreeVector fWirePos;
         PENDetectorMessenger* fDetectorMessenger;
         

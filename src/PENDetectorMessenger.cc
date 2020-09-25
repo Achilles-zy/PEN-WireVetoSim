@@ -26,22 +26,29 @@ PENDetectorMessenger::PENDetectorMessenger(PENDetectorConstruction* Det)
 	fPENDir(0),
 	fDetDir(0),
 	commandSetWireType(0),
-	commandSetConfine(0)
+	commandSetConfine(0),
+	commandSetLayerNb(0)
 {
-	fDetDir = new G4UIdirectory("/PEN/Det/Set");
+	fDetDir = new G4UIdirectory("/PEN/det/set");
 	fDetDir->SetGuidance("detector construction commands");
 
-	commandSetWireType = new G4UIcmdWithAString("/PEN/Det/Set/WireType", this);
+	commandSetWireType = new G4UIcmdWithAString("/PEN/det/set/wiretype", this);
 	commandSetWireType->SetGuidance("Select wire type.");
 	commandSetWireType->SetParameterName("choice", false);
 	commandSetWireType->AvailableForStates(G4State_PreInit, G4State_Idle);
 	commandSetWireType->SetToBeBroadcasted(false);
 
-	commandSetConfine = new G4UIcmdWithAString("/PEN/Det/Set/Confine", this);
+	commandSetConfine = new G4UIcmdWithAString("/PEN/det/set/donfine", this);
 	commandSetConfine->SetGuidance("Set confine name in file name.");
 	commandSetConfine->SetParameterName("choice", false);
 	commandSetConfine->AvailableForStates(G4State_PreInit, G4State_Idle);
 	commandSetConfine->SetToBeBroadcasted(false);
+
+	commandSetLayerNb = new G4UIcmdWithAnInteger("/PEN/det/set/layernumber", this);
+	commandSetLayerNb->SetGuidance("Set PEN shell layer number");
+	commandSetLayerNb->SetParameterName("choice", false);
+	commandSetLayerNb->AvailableForStates(G4State_PreInit, G4State_Idle);
+	commandSetLayerNb->SetToBeBroadcasted(false);
 
 
 
@@ -55,6 +62,7 @@ PENDetectorMessenger::~PENDetectorMessenger()
 	delete fPENDir;
 	delete commandSetWireType;
 	delete commandSetConfine;
+	delete commandSetLayerNb;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -67,5 +75,14 @@ void PENDetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 
 	if (command == commandSetConfine) {
 		fDetCons->SetConfine(newValue);
+	}
+
+
+}
+
+void PENDetectorMessenger::SetNewValue(G4UIcommand* command, G4int newValue)
+{
+	if (command == commandSetLayerNb) {
+		fDetCons->SetLayerNb(newValue);
 	}
 }

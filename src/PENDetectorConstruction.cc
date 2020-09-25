@@ -33,6 +33,7 @@
 
 #include "G4VPhysicalVolume.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4MultiUnion.hh"
 
 #include "PENMaterials.hh"
 #include <G4VisAttributes.hh>
@@ -65,7 +66,8 @@ PENDetectorConstruction::PENDetectorConstruction():
     SiPM_8(nullptr),
     SiPM_9(nullptr),
 	SiPM_10(nullptr),
-	SiPM_11(nullptr)
+	SiPM_11(nullptr),
+	logicPENShell(nullptr)
 {
 	fDetectorMessenger = new PENDetectorMessenger(this);
 	matconstructor = new PENMaterials;
@@ -76,6 +78,7 @@ PENDetectorConstruction::PENDetectorConstruction():
 	fABSFile = "PEN_ABS";
 	fConfine = "Wire";
 	fType = "A1";
+	fLayerNb = 1;
 	pmtReflectivity = 0.50;
 	G4cout << "Start Construction" << G4endl;
 	DefineMat();
@@ -95,6 +98,12 @@ void PENDetectorConstruction::SetWireType(G4String type) {
 
 void PENDetectorConstruction::SetConfine(G4String confine) {
 	fConfine = confine;
+	G4RunManager::GetRunManager()->ReinitializeGeometry();
+}
+
+
+void PENDetectorConstruction::SetLayerNb(G4int nb) {
+	fLayerNb = nb;
 	G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
@@ -599,16 +608,17 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
   //new G4PVPlacement(0, zTransGroove, logicGrooveLayer, "GrooveLayer", logicTotalCrystal, false, 0, checkOverlaps);
 
 
-  //PEN shell scintilator
-  G4double LN2Gap = 0.5 * mm;
-  G4double ShellThickness = 1 * cm;
-  auto solidPENShell = new G4Tubs("solidPENShell", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
-  auto logicPENShell = new G4LogicalVolume(solidPENShell, matPEN, "logicPENShell");
-  auto physPENShell = new G4PVPlacement(0, G4ThreeVector(), logicPENShell, "PENShell", logicEnv, false, 0, checkOverlaps);
+
+  //========================PEN shell and wire paremeters========================//
 
   G4String WireType = fType;
   G4double WireLength = 20 * cm;
   G4double wireradius = 0.7 * mm;
+  G4double LN2Gap = 0.5 * mm;
+  G4double ShellThickness = 1 * cm;
+
+  //=============================================================================//
+
   G4double WireCentDist = outerGeRadius + LN2Gap + ShellThickness + wireradius;
   G4ThreeVector WirePlacement = G4ThreeVector(WireCentDist, 0, 0);
 
@@ -658,47 +668,82 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 	  G4double JacketRadius = 0.254 * mm / 2;
 	  G4double BraidThickness = 0.02 * mm;
 	  G4double BraidRadius = JacketRadius + BraidThickness;
-	  G4double WireRadius = 0.5 * mm / 2;
-	  G4double HarnessRadius = 1.25 * mm / 2;
-	  wireradius = HarnessRadius;
+	  G4double SubWireRadius = 0.5 * mm / 2;
+	  G4double WireRadius = 1.25 * mm / 2;
+	  G4double WireJacketThickness = WireRadius - (1 + sqrt(2)) * SubWireRadius;
+	  wireradius = WireRadius;
 	  fWirePos = WirePlacement;
-	  G4double HJacketThickness = HarnessRadius - (1 + sqrt(2)) * WireRadius;
 	  G4Material* JacketMat = matPTFE;
-
-	  G4Tubs* solidHarness = new G4Tubs("solidHarness", 0 * mm, HarnessRadius, WireLength / 2, 0, twopi);
-	  G4LogicalVolume* logicHarness = new G4LogicalVolume(solidHarness, JacketMat, "logicHarness");
-	  G4PVPlacement* physHarness = new G4PVPlacement(0, WirePlacement, logicHarness, "Harness", logicEnv, false, 0, checkOverlaps);
-
-	  G4Tubs* solidHJacket = new G4Tubs("solidHJacket", HarnessRadius - HJacketThickness, HarnessRadius, WireLength / 2, 0, twopi);
-	  G4LogicalVolume* logicHJacket = new G4LogicalVolume(solidHJacket, JacketMat, "logicHJacket");
-	  G4PVPlacement* physHJacket = new G4PVPlacement(0, G4ThreeVector(), logicHJacket, "HarnessJacket", logicHarness, false, 0, checkOverlaps);
 
 	  G4Tubs* solidWire = new G4Tubs("solidWire", 0 * mm, WireRadius, WireLength / 2, 0, twopi);
 	  G4LogicalVolume* logicWire = new G4LogicalVolume(solidWire, JacketMat, "logicWire");
-	  G4PVPlacement* physWire_0 = new G4PVPlacement(0, G4ThreeVector(sqrt(2) * WireRadius, 0, 0), logicWire, "Wire", logicHarness, false, 0, checkOverlaps);
-	  G4PVPlacement* physWire_1 = new G4PVPlacement(0, G4ThreeVector(0, sqrt(2) * WireRadius, 0), logicWire, "Wire", logicHarness, false, 1, checkOverlaps);
-	  G4PVPlacement* physWire_2 = new G4PVPlacement(0, G4ThreeVector(-sqrt(2) * WireRadius, 0, 0), logicWire, "Wire", logicHarness, false, 2, checkOverlaps);
-	  G4PVPlacement* physWire_3 = new G4PVPlacement(0, G4ThreeVector(0, -sqrt(2) * WireRadius, 0), logicWire, "Wire", logicHarness, false, 3, checkOverlaps);
+	  G4PVPlacement* physWire = new G4PVPlacement(0, WirePlacement, logicWire, "Wire", logicEnv, false, 0, checkOverlaps);
+
+	  G4Tubs* solidWireJacket = new G4Tubs("solidWireJacket", WireRadius - WireJacketThickness, WireRadius, WireLength / 2, 0, twopi);
+	  G4LogicalVolume* logicWireJacket = new G4LogicalVolume(solidWireJacket, JacketMat, "logicWireJacket");
+	  G4PVPlacement* physWireJacket = new G4PVPlacement(0, G4ThreeVector(), logicWireJacket, "WireJacket", logicWire, false, 0, checkOverlaps);
+
+	  G4Tubs* solidSubWire = new G4Tubs("solidWire", 0 * mm, SubWireRadius, WireLength / 2, 0, twopi);
+	  G4LogicalVolume* logicSubWire = new G4LogicalVolume(solidSubWire, JacketMat, "logicWire");
+	  G4PVPlacement* physSubWire_0 = new G4PVPlacement(0, G4ThreeVector(sqrt(2) * SubWireRadius, 0, 0), logicSubWire, "SubWire_0", logicWire, false, 0, checkOverlaps);
+	  G4PVPlacement* physSubWire_1 = new G4PVPlacement(0, G4ThreeVector(0, sqrt(2) * SubWireRadius, 0), logicSubWire, "SubWire_1", logicWire, false, 1, checkOverlaps);
+	  G4PVPlacement* physSubWire_2 = new G4PVPlacement(0, G4ThreeVector(-sqrt(2) * SubWireRadius, 0, 0), logicSubWire, "SubWire_2", logicWire, false, 2, checkOverlaps);
+	  G4PVPlacement* physSubWire_3 = new G4PVPlacement(0, G4ThreeVector(0, -sqrt(2) * SubWireRadius, 0), logicSubWire, "SubWire_3", logicWire, false, 3, checkOverlaps);
 
 	  G4Tubs* solidConductor = new G4Tubs("solidConductor", 0 * mm, ConductorRadius, WireLength / 2, 0, twopi);
 	  G4LogicalVolume* logicConductor = new G4LogicalVolume(solidConductor, matCu, "logicConductor");
-	  G4PVPlacement* physConductor = new G4PVPlacement(0, G4ThreeVector(), logicConductor, "Conductor", logicWire, false, 0, checkOverlaps);
+	  G4PVPlacement* physConductor = new G4PVPlacement(0, G4ThreeVector(), logicConductor, "Conductor", logicSubWire, false, 0, checkOverlaps);
 
 	  G4Tubs* solidJacket = new G4Tubs("solidJacket", ConductorRadius, JacketRadius, WireLength / 2, 0, twopi);
 	  G4LogicalVolume* logicJacket = new G4LogicalVolume(solidJacket, JacketMat, "logicJacket");
-	  G4PVPlacement* physJacket = new G4PVPlacement(0, G4ThreeVector(), logicJacket, "Jacket", logicWire, false, 0, checkOverlaps);
+	  G4PVPlacement* physJacket = new G4PVPlacement(0, G4ThreeVector(), logicJacket, "Jacket", logicSubWire, false, 0, checkOverlaps);
 
 	  G4Tubs* solidBraid = new G4Tubs("solidBraid", JacketRadius, BraidRadius, WireLength / 2, 0, twopi);
 	  G4LogicalVolume* logicBraid = new G4LogicalVolume(solidBraid, matCu, "logicBraid");
-	  G4PVPlacement* physBraid = new G4PVPlacement(0, G4ThreeVector(), logicBraid, "Braid", logicWire, false, 0, checkOverlaps);
+	  G4PVPlacement* physBraid = new G4PVPlacement(0, G4ThreeVector(), logicBraid, "Braid", logicSubWire, false, 0, checkOverlaps);
 
-	  G4Tubs* solidOuterJacket = new G4Tubs("solidOuterJacket", BraidRadius, WireRadius, WireLength / 2, 0, twopi);
+	  G4Tubs* solidOuterJacket = new G4Tubs("solidOuterJacket", BraidRadius, SubWireRadius, WireLength / 2, 0, twopi);
 	  G4LogicalVolume* logicOuterJacket = new G4LogicalVolume(solidOuterJacket, JacketMat, "logicOuterJacket");
-	  G4PVPlacement* physOuterJacket = new G4PVPlacement(0, G4ThreeVector(), logicOuterJacket, "OuterJacket", logicWire, false, 0, checkOverlaps);
+	  G4PVPlacement* physOuterJacket = new G4PVPlacement(0, G4ThreeVector(), logicOuterJacket, "OuterJacket", logicSubWire, false, 0, checkOverlaps);
   }
   else {
 	  G4cout << "Type does not exist!" << G4endl;
   }
+
+  
+  //PEN shell scintilator
+  if (fLayerNb == 1) {
+	  auto solidPENShell = new G4Tubs("solidPENShell", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
+	  logicPENShell = new G4LogicalVolume(solidPENShell, matPEN, "logicPENShell");
+  }
+  else if (fLayerNb == 2) {
+	  auto solidPENShell_0 = new G4Tubs("solidPENShell_0", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
+	  auto solidPENShell_1 = new G4Tubs("solidPENShell_1", outerGeRadius + LN2Gap + ShellThickness + wireradius * 2, outerGeRadius + LN2Gap + ShellThickness + wireradius * 2 + ShellThickness, GeHeight1, 0., twopi);
+	  G4MultiUnion* solidPENShell = new G4MultiUnion("solidPENShell");
+	  // Add the shapes to the structure
+	  //
+	  G4RotationMatrix rotm = G4RotationMatrix();
+	  G4ThreeVector position0 = G4ThreeVector(0., 0., 0.);
+	  G4ThreeVector position1 = G4ThreeVector(0., 0., 0.);
+	  G4Transform3D tr0 = G4Transform3D(rotm, position0);
+	  G4Transform3D tr1 = G4Transform3D(rotm, position1);
+
+	  solidPENShell->AddNode(*solidPENShell_0, tr0);
+	  solidPENShell->AddNode(*solidPENShell_1, tr1);
+
+	  // Finally close the structure
+	  //
+	  solidPENShell->Voxelize();
+	  logicPENShell = new G4LogicalVolume(solidPENShell, matPEN, "logicPENShell");
+  }
+  else
+  {
+	  G4cout << "Input layer is not supported yet." << G4endl;
+  }
+
+  auto physPENShell = new G4PVPlacement(0, G4ThreeVector(), logicPENShell, "PENShell", logicEnv, false, 0, checkOverlaps);
+
+ 
   /*
   //Wire with PTFE
   G4double WireLength = 20 * cm;

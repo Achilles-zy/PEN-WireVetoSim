@@ -50,7 +50,7 @@ void PENRunAction::BeginOfRunAction(const G4Run* aRun)
 {
   auto analysisManager = G4AnalysisManager::Instance();
   G4int RunID = aRun->GetRunID();
-  G4String fileName = fDetCons->GetWireType() + "_" + fDetCons->GetConfine() + "_" + std::to_string(RunID);
+  G4String fileName = fDetCons->GetWireType() + "_" + fDetCons->GetConfine() + "_" + std::to_string(fDetCons->GetLayerNb()) + "_" + std::to_string(RunID);
   //analysisManager->SetFileName(fileName);
   analysisManager->OpenFile(fileName);
 
@@ -92,6 +92,12 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 	  std::ofstream output;
 	  if (aRun->GetRunID() == 0) {
 		  output.open("Simulation Result.txt", std::ios::ate);
+		  output
+			  << "Wire Type:\t" << std::setw(5) << fDetCons->GetWireType() << '\t'
+			  << "Confine Info:\t" << std::setw(10) << fDetCons->GetConfine() << '\t'
+			  << "Shell Layer Number:\t" << std::setw(5) << std::to_string(fDetCons->GetLayerNb()) << G4endl;
+		  output.close();
+		  
 	  }
 	  else
 	  {
