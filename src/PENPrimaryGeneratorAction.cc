@@ -31,7 +31,8 @@ PENPrimaryGeneratorAction::PENPrimaryGeneratorAction(PENDetectorConstruction* de
 		i++;
 	}
 	*/
-	G4double Radius = 0.7 * mm;
+	G4double Radius = fDetCons->GetWireRadius();
+	G4double Length = fDetCons->GetWireLength();
 	//G4double Radius = 1 * cm;
     PENGPS->SetParticleDefinition(particleTable->FindParticle(particleName));
 	PENGPS->GetCurrentSource()->GetEneDist()->SetEnergyDisType("Mono");
@@ -41,7 +42,7 @@ PENPrimaryGeneratorAction::PENPrimaryGeneratorAction(PENDetectorConstruction* de
 	PENGPS->GetCurrentSource()->GetPosDist()->SetPosDisShape("Cylinder");
 	PENGPS->GetCurrentSource()->GetPosDist()->SetCentreCoords(fDetCons->GetWirePos());
 	PENGPS->GetCurrentSource()->GetPosDist()->SetRadius(Radius);
-	PENGPS->GetCurrentSource()->GetPosDist()->SetHalfZ(10 * cm);
+	PENGPS->GetCurrentSource()->GetPosDist()->SetHalfZ(Length / 2);
 
 	//PENGPS->GetCurrentSource()->GetPosDist()->ConfineSourceToVolume("PENShell");
 	//PENGPS->GetCurrentSource()->GetPosDist()->ConfineSourceToVolume("PENShell");

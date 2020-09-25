@@ -45,9 +45,18 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
             return fWirePos;
         }
 
+        G4double GetWireRadius() {
+            return fWireRadius;
+        }
+
+        G4double GetWireLength() {
+            return fWireLength;
+        }
+
         G4String GetWireType() {
             return fType;
         }
+
         G4String GetConfine() {
             return fConfine;
         }
@@ -127,6 +136,8 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
         G4String fConfine;
         G4int fLayerNb;
         G4ThreeVector fWirePos;
+        G4double fWireRadius;
+        G4double fWireLength;
         PENDetectorMessenger* fDetectorMessenger;
         
 };

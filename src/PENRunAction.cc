@@ -17,8 +17,8 @@ PENRunAction::PENRunAction(PENPrimaryGeneratorAction* gen, PENDetectorConstructi
 {
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->SetVerboseLevel(1);
-  analysisManager->CreateH1("edepBulk", "edepBulk", 200, 0 * keV, 20 * keV);
-  analysisManager->CreateH1("PhotonCount", "PhotonCount", 200, 0, 200);
+  analysisManager->CreateH1("edepBulk", "Edep in Bulk", 200, 0 * keV, 20 * keV);
+  analysisManager->CreateH1("PhotonCount", "Photon Count", 200, 0, 200);
 
   analysisManager->CreateNtuple("Data", "EventCount");
   analysisManager->CreateNtupleIColumn("VetoCount");
@@ -93,9 +93,10 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 	  if (aRun->GetRunID() == 0) {
 		  output.open("Simulation Result.txt", std::ios::ate);
 		  output
-			  << "Wire Type:\t" << std::setw(5) << fDetCons->GetWireType() << '\t'
-			  << "Confine Info:\t" << std::setw(10) << fDetCons->GetConfine() << '\t'
-			  << "Shell Layer Number:\t" << std::setw(5) << std::to_string(fDetCons->GetLayerNb()) << G4endl;
+			  << "Wire Type:\t" << fDetCons->GetWireType() << G4endl
+			  << "Confine Info:\t" << fDetCons->GetConfine() << G4endl
+			  << "Shell Layer Number:\t"  << std::to_string(fDetCons->GetLayerNb()) << G4endl
+			  << "Simulation result:" << G4endl;
 		  output.close();
 		  
 	  }

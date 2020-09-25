@@ -79,6 +79,9 @@ PENDetectorConstruction::PENDetectorConstruction():
 	fConfine = "Wire";
 	fType = "A1";
 	fLayerNb = 1;
+	fWirePos = G4ThreeVector();
+	fWireRadius = 0.7 * mm;
+	fWireLength = 20 * cm;
 	pmtReflectivity = 0.50;
 	G4cout << "Start Construction" << G4endl;
 	DefineMat();
@@ -612,6 +615,7 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
   //========================PEN shell and wire paremeters========================//
 
   G4String WireType = fType;
+  G4int LayerNb = fLayerNb;
   G4double WireLength = 20 * cm;
   G4double wireradius = 0.7 * mm;
   G4double LN2Gap = 0.5 * mm;
@@ -619,6 +623,7 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 
   //=============================================================================//
 
+  fWireLength = WireLength;
   G4double WireCentDist = outerGeRadius + LN2Gap + ShellThickness + wireradius;
   G4ThreeVector WirePlacement = G4ThreeVector(WireCentDist, 0, 0);
 
@@ -633,7 +638,10 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 	  G4double JacketRadius = 0.68 * mm / 2;
 	  G4double BraidRadius = JacketRadius + BraidThickness;
 	  G4double WireRadius = 1 * mm / 2;
+	  fWireRadius = WireRadius;
 	  wireradius = WireRadius;
+	  WireCentDist = outerGeRadius + LN2Gap + ShellThickness + wireradius;
+	  WirePlacement = G4ThreeVector(WireCentDist, 0, 0);
 	  fWirePos = WirePlacement;
 	  G4Material* JacketMat = matPTFE;
 
@@ -670,8 +678,11 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 	  G4double BraidRadius = JacketRadius + BraidThickness;
 	  G4double SubWireRadius = 0.5 * mm / 2;
 	  G4double WireRadius = 1.25 * mm / 2;
+	  fWireRadius = WireRadius;
 	  G4double WireJacketThickness = WireRadius - (1 + sqrt(2)) * SubWireRadius;
 	  wireradius = WireRadius;
+	  WireCentDist = outerGeRadius + LN2Gap + ShellThickness + wireradius;
+	  WirePlacement = G4ThreeVector(WireCentDist, 0, 0);
 	  fWirePos = WirePlacement;
 	  G4Material* JacketMat = matPTFE;
 
@@ -712,11 +723,11 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
 
   
   //PEN shell scintilator
-  if (fLayerNb == 1) {
+  if (LayerNb == 1) {
 	  auto solidPENShell = new G4Tubs("solidPENShell", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
 	  logicPENShell = new G4LogicalVolume(solidPENShell, matPEN, "logicPENShell");
   }
-  else if (fLayerNb == 2) {
+  else if (LayerNb == 2) {
 	  auto solidPENShell_0 = new G4Tubs("solidPENShell_0", outerGeRadius + LN2Gap, outerGeRadius + LN2Gap + ShellThickness, GeHeight1, 0., twopi);
 	  auto solidPENShell_1 = new G4Tubs("solidPENShell_1", outerGeRadius + LN2Gap + ShellThickness + wireradius * 2, outerGeRadius + LN2Gap + ShellThickness + wireradius * 2 + ShellThickness, GeHeight1, 0., twopi);
 	  G4MultiUnion* solidPENShell = new G4MultiUnion("solidPENShell");
@@ -738,7 +749,7 @@ G4VPhysicalVolume* PENDetectorConstruction::Construct()
   }
   else
   {
-	  G4cout << "Input layer is not supported yet." << G4endl;
+	  G4cout << "Input layer number is not supported yet." << G4endl;
   }
 
   auto physPENShell = new G4PVPlacement(0, G4ThreeVector(), logicPENShell, "PENShell", logicEnv, false, 0, checkOverlaps);
