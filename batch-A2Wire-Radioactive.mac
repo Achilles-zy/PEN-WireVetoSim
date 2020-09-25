@@ -6,14 +6,13 @@
 # Change the default number of threads (in multi-threaded mode)
 /run/numberOfThreads 16
 #
-# Initialize kernel
-/run/initialize
 
 /PEN/Det/Set/WireType A2
 /PEN/Det/Set/Confine Wire
+
+# Initialize kernel
+/run/initialize
 /gps/pos/confine Wire
-
-
 
 
 #run 0
