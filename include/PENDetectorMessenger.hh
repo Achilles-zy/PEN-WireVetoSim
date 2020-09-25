@@ -23,7 +23,7 @@ public:
     ~PENDetectorMessenger();
 
     virtual void SetNewValue(G4UIcommand*, G4String);
-    virtual void SetNewValue(G4UIcommand*, G4int);
+    virtual void SetNewValueI(G4UIcommand*, G4int);
 
 private:
 
@@ -34,7 +34,8 @@ private:
 
     G4UIcmdWithAString* commandSetWireType;
     G4UIcmdWithAString* commandSetConfine;
-    G4UIcmdWithAnInteger* commandSetLayerNb;
+    G4UIcmdWithAString* commandSetLayerNb;
+    G4UIcmdWithAnInteger* commandSetLayerNbI;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

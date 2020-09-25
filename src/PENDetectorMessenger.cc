@@ -27,7 +27,8 @@ PENDetectorMessenger::PENDetectorMessenger(PENDetectorConstruction* Det)
 	fDetDir(0),
 	commandSetWireType(0),
 	commandSetConfine(0),
-	commandSetLayerNb(0)
+	commandSetLayerNb(0),
+	commandSetLayerNbI(0)
 {
 	fDetDir = new G4UIdirectory("/PEN/det/set");
 	fDetDir->SetGuidance("detector construction commands");
@@ -44,11 +45,17 @@ PENDetectorMessenger::PENDetectorMessenger(PENDetectorConstruction* Det)
 	commandSetConfine->AvailableForStates(G4State_PreInit, G4State_Idle);
 	commandSetConfine->SetToBeBroadcasted(false);
 
-	commandSetLayerNb = new G4UIcmdWithAnInteger("/PEN/det/set/layernumber", this);
+	commandSetLayerNb = new G4UIcmdWithAString("/PEN/det/set/layernumber", this);
 	commandSetLayerNb->SetGuidance("Set PEN shell layer number");
-	commandSetLayerNb->SetParameterName("choice", false);
+	commandSetLayerNb->SetParameterName("LayerNumber", false);
 	commandSetLayerNb->AvailableForStates(G4State_PreInit, G4State_Idle);
 	commandSetLayerNb->SetToBeBroadcasted(false);
+
+	commandSetLayerNbI = new G4UIcmdWithAnInteger("/PEN/det/set/layernumberi", this);
+	commandSetLayerNbI->SetGuidance("Set PEN shell layer number");
+	commandSetLayerNbI->SetParameterName("LayerNumber", false);
+	commandSetLayerNbI->AvailableForStates(G4State_PreInit, G4State_Idle);
+	commandSetLayerNbI->SetToBeBroadcasted(false);
 
 
 
@@ -63,6 +70,7 @@ PENDetectorMessenger::~PENDetectorMessenger()
 	delete commandSetWireType;
 	delete commandSetConfine;
 	delete commandSetLayerNb;
+	delete commandSetLayerNbI;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -77,12 +85,15 @@ void PENDetectorMessenger::SetNewValue(G4UIcommand* command, G4String newValue)
 		fDetCons->SetConfine(newValue);
 	}
 
+	if (command == commandSetLayerNb) {
+		fDetCons->SetLayerNbS(newValue);
+	}
 
 }
 
-void PENDetectorMessenger::SetNewValue(G4UIcommand* command, G4int newValue)
+void PENDetectorMessenger::SetNewValueI(G4UIcommand* command, G4int newValue)
 {
-	if (command == commandSetLayerNb) {
+	if (command == commandSetLayerNbI) {
 		fDetCons->SetLayerNb(newValue);
 	}
 }
