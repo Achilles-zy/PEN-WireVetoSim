@@ -26,3 +26,4 @@ current choice: 1,2
 
 Set PEN shell layer number
 
+Default confinement of src is Wire
