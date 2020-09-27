@@ -4,7 +4,7 @@
 /run/verbose 0
 #
 # Change the default number of threads (in multi-threaded mode)
-/run/numberOfThreads 2
+/run/numberOfThreads 16
 #
 
 #/gps/particle ion
@@ -89,4 +89,9 @@
 /gps/particle ion
 /gps/ion 81 208 0 0
 /gps/energy 0 keV
+/run/beamOn 1000000
+
+#run 12
+/gps/particle ion
+/gps/ion 19 40 0 0
 /run/beamOn 1000000

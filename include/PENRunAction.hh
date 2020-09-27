@@ -44,6 +44,8 @@ private:
 	G4Accumulable<G4int> SiPMEventCount;
 	G4Accumulable<G4int> VetoEventCount;
 	G4Accumulable<G4int> BulkEventCount;
+	G4String filename;
+	G4String txtname;
 };
 
 #endif

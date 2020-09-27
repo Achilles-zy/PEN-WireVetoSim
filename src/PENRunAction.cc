@@ -31,7 +31,8 @@ PENRunAction::PENRunAction(PENPrimaryGeneratorAction* gen, PENDetectorConstructi
   accumulableManager->RegisterAccumulable(BulkEventCount);
   fDetCons = det;
   fPrimaryGenerator = gen;
-
+  filename = "Simulation Result";
+  txtname = "Simulation Result";
 
 }
 
@@ -51,6 +52,8 @@ void PENRunAction::BeginOfRunAction(const G4Run* aRun)
   auto analysisManager = G4AnalysisManager::Instance();
   G4int RunID = aRun->GetRunID();
   G4String fileName = fDetCons->GetWireType() + "_" + fDetCons->GetConfine() + "_" + std::to_string(fDetCons->GetLayerNb()) + "_" + std::to_string(RunID);
+  filename = fileName;
+  txtname = fDetCons->GetWireType() + "_" + fDetCons->GetConfine() + "_" + std::to_string(fDetCons->GetLayerNb());
   //analysisManager->SetFileName(fileName);
   analysisManager->OpenFile(fileName);
 
@@ -91,7 +94,7 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 
 	  std::ofstream output;
 	  if (aRun->GetRunID() == 0) {
-		  output.open("Simulation Result.txt", std::ios::ate);
+		  output.open(txtname + ".txt", std::ios::ate);
 		  output
 			  << "Wire Type:\t" << fDetCons->GetWireType() << G4endl
 			  << "Confine Info:\t" << fDetCons->GetConfine() << G4endl
@@ -102,10 +105,11 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 	  }
 	  else
 	  {
-		  output.open("Simulation Result.txt", std::ios::app);
+		  output.open(txtname + ".txt", std::ios::app);
 	  }
 	  output
 		  << "Run ID:\t" << std::setw(5) << aRun->GetRunID() << '\t'
+		  << "Number of Event is\t" << std::setw(10) << aRun->GetNumberOfEvent() << '\t'
 		  << "Primary Particle is\t" << std::setw(5) << fPrimaryGenerator->GetPrimaryName() << '\t'
 		  << "Primary Energy(MeV) =\t" << std::setw(5) << std::setiosflags(std::ios::fixed) << std::setprecision(2) << fPrimaryGenerator->GetPrimaryE() << '\t'
 		  << "VetoEventCount =\t" << std::left << std::setw(10) << VetoEventCount.GetValue() << '\t'
