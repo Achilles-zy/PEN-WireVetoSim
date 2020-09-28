@@ -82,8 +82,14 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
 		G4VPhysicalVolume* SiPM_9;
 		G4VPhysicalVolume* SiPM_10;
 		G4VPhysicalVolume* SiPM_11;
+        G4VPhysicalVolume* SiPM_12;
+        G4VPhysicalVolume* SiPM_13;
+        G4VPhysicalVolume* SiPM_14;
+        G4VPhysicalVolume* SiPM_15;
+        G4VPhysicalVolume* physWire;
         G4VPhysicalVolume* physPENShell;
         G4LogicalVolume* logicPENShell;
+        G4Tubs* solidSideSiPM;
 
         PENMaterials* matconstructor;
 
@@ -138,6 +144,7 @@ class PENDetectorConstruction : public G4VUserDetectorConstruction
         G4String fConfine;
         G4int fLayerNb;
         G4ThreeVector fWirePos;
+        G4double fWireCentDist;
         G4double fWireRadius;
         G4double fWireLength;
         PENDetectorMessenger* fDetectorMessenger;
@@ -193,8 +200,23 @@ inline const G4VPhysicalVolume* PENDetectorConstruction::GetSiPM(G4int i) const
         return SiPM_9;
         break;
         case 10:
-        return SiPM_10;
-        break;
+            return SiPM_10;
+            break;
+        case 11:
+            return SiPM_11;
+            break;
+        case 12:
+            return SiPM_12;
+            break;
+        case 13:
+            return SiPM_13;
+            break;
+        case 14:
+            return SiPM_14;
+            break;
+        case 15:
+            return SiPM_15;
+            break;
         default:
         break;
     }
