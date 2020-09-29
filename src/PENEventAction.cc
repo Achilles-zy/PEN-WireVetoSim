@@ -32,9 +32,10 @@ PENEventAction::PENEventAction(PENRunAction* runaction)
 	SiPM_15(0),
 	Total(0),
 	ID(0),
-	PhotonCount(0),
+    SiPMPhotonCount(0),
 	ifSiPM(false),
 	ifBulk(false),
+    ifDetectable(false),
 	run(runaction)
     //ResultFile("Distribution_Results_NTuple.root","RECREATE"),
     //Distribution_Results("Distribution_Results","Distribution_Results")
@@ -89,9 +90,11 @@ void PENEventAction::BeginOfEventAction(const G4Event* evt)
   SiPM_14 = 0;
   SiPM_15 = 0;
   Total = 0;
-  PhotonCount = 0;
+  SiPMPhotonCount = 0;
+  EscapedPhotonCount = 0;
   ifSiPM = false;
   ifBulk = false;
+  ifDetectable = false;
   // G4cout<<ID<<G4endl;
 }
 
@@ -102,8 +105,8 @@ void PENEventAction::EndOfEventAction(const G4Event* evt)
 
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->FillH1(0, edepBulk);
-  analysisManager->FillH1(1, PhotonCount);
-	if (edepBulk > 0 && PhotonCount > 0) {
+  analysisManager->FillH1(1, SiPMPhotonCount);
+	if (edepBulk > 0 && SiPMPhotonCount > 0) {
 		run->CountVetoEvent();
     }
 
@@ -111,9 +114,18 @@ void PENEventAction::EndOfEventAction(const G4Event* evt)
 		run->CountBulkEvent();
 	}
 
-	if (PhotonCount > 0) {
+	if (SiPMPhotonCount > 0) {
 		run->CountSiPMEvent();
 	}
+
+    if (ifDetectable == true) {
+        run->CountDetectableEvent();
+    }
+
+    if (ifDetectable == true && edepBulk > 0) {
+        run->CountVetoPossibleEvent();
+    }
+
     G4int evtID = evt->GetEventID();
     //G4cout << "Photoncount =" << PhotonCount << G4endl;
     if (evtID % 5000 == 0) {

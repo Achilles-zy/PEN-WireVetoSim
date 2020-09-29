@@ -46,5 +46,6 @@ void PENActionInitialization::Build() const
 
 	SetUserAction(new PENSteppingAction(eventAction));
 	//SetUserAction(new PENTrackingAction(eventAction));
+	//SetUserAction(new PENTrackingAction(eventAction));
 	SetUserAction(new PENStackingAction);
 }

@@ -32,6 +32,12 @@ class PENRunAction : public G4UserRunAction
 	void CountVetoEvent() {
 		VetoEventCount += 1;
 	}
+	void CountDetectableEvent() {
+		DetectableEventCount += 1;
+	}
+	void CountVetoPossibleEvent() {
+		VetoPossibleEvtCount += 1;
+	}
 
 private:
 	//number of events that generate signals in bulk
@@ -44,6 +50,8 @@ private:
 	G4Accumulable<G4int> SiPMEventCount;
 	G4Accumulable<G4int> VetoEventCount;
 	G4Accumulable<G4int> BulkEventCount;
+	G4Accumulable<G4int> DetectableEventCount;
+	G4Accumulable<G4int> VetoPossibleEvtCount;
 	G4String filename;
 	G4String txtname;
 };

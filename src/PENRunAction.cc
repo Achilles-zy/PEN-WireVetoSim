@@ -13,7 +13,9 @@
 PENRunAction::PENRunAction(PENPrimaryGeneratorAction* gen, PENDetectorConstruction* det):
 	BulkEventCount(0),
 	SiPMEventCount(0),
-	VetoEventCount(0)
+	VetoEventCount(0),
+	DetectableEventCount(0),
+	VetoPossibleEvtCount(0)
 {
   auto analysisManager = G4AnalysisManager::Instance();
   analysisManager->SetVerboseLevel(1);
@@ -24,11 +26,15 @@ PENRunAction::PENRunAction(PENPrimaryGeneratorAction* gen, PENDetectorConstructi
   analysisManager->CreateNtupleIColumn("VetoCount");
   analysisManager->CreateNtupleIColumn("SiPMCount");
   analysisManager->CreateNtupleIColumn("BulkCount");
+  analysisManager->CreateNtupleIColumn("DetectableCount");
+  analysisManager->CreateNtupleIColumn("VetoPossibleCount");
   analysisManager->FinishNtuple();
   G4AccumulableManager* accumulableManager = G4AccumulableManager::Instance();
   accumulableManager->RegisterAccumulable(SiPMEventCount);
   accumulableManager->RegisterAccumulable(VetoEventCount);
   accumulableManager->RegisterAccumulable(BulkEventCount);
+  accumulableManager->RegisterAccumulable(DetectableEventCount);
+  accumulableManager->RegisterAccumulable(VetoPossibleEvtCount);
   fDetCons = det;
   fPrimaryGenerator = gen;
   filename = "Simulation Result";
@@ -76,6 +82,8 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
   analysisManager->FillNtupleIColumn(0, VetoEventCount.GetValue());
   analysisManager->FillNtupleIColumn(1, SiPMEventCount.GetValue());
   analysisManager->FillNtupleIColumn(2, BulkEventCount.GetValue());
+  analysisManager->FillNtupleIColumn(3, DetectableEventCount.GetValue());
+  analysisManager->FillNtupleIColumn(4, VetoPossibleEvtCount.GetValue());
   analysisManager->AddNtupleRow();
   // analysisManager -> SetH1Plotting(0,true);
   // analysisManager -> SetH1Plotting(1,true);
@@ -88,6 +96,8 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 	  G4cout << "VetoEventCount =" << VetoEventCount.GetValue() << G4endl;
 	  G4cout << "SiPMEventCount =" << SiPMEventCount.GetValue() << G4endl;
 	  G4cout << "BulkEventCount =" << BulkEventCount.GetValue() << G4endl;
+	  G4cout << "DetectableEventCount =" << DetectableEventCount.GetValue() << G4endl;
+	  G4cout << "VetoPossibleEventCount =" << VetoPossibleEvtCount.GetValue() << G4endl;
 	  G4cout << G4endl;
 	  G4cout << G4endl;
 	  G4cout << "===============================================================" << G4endl;
@@ -100,21 +110,31 @@ void PENRunAction::EndOfRunAction(const G4Run* aRun)
 			  << "Confine Info:\t" << fDetCons->GetConfine() << G4endl
 			  << "Shell Layer Number:\t"  << std::to_string(fDetCons->GetLayerNb()) << G4endl
 			  << "Simulation result:" << G4endl;
-		  output.close();
-		  
 	  }
 	  else
 	  {
 		  output.open(txtname + ".txt", std::ios::app);
+	  }
+	  G4double eff;
+	  if (BulkEventCount.GetValue() != 0) {
+		  eff = VetoEventCount.GetValue() / BulkEventCount.GetValue();
+	  }
+	  else
+	  {
+		  eff = 0;
 	  }
 	  output
 		  << "Run ID:\t" << std::setw(5) << aRun->GetRunID() << '\t'
 		  << "Number of Event is\t" << std::setw(10) << aRun->GetNumberOfEvent() << '\t'
 		  << "Primary Particle is\t" << std::setw(5) << fPrimaryGenerator->GetPrimaryName() << '\t'
 		  << "Primary Energy(MeV) =\t" << std::setw(5) << std::setiosflags(std::ios::fixed) << std::setprecision(2) << fPrimaryGenerator->GetPrimaryE() << '\t'
-		  << "VetoEventCount =\t" << std::left << std::setw(10) << VetoEventCount.GetValue() << '\t'
 		  << "SiPMEventCount =\t" << std::left << std::setw(10) << SiPMEventCount.GetValue() << '\t'
-		  << "BulkEventCount =\t" << std::left << std::setw(10) << BulkEventCount.GetValue() << G4endl;
+		  << "VetoEventCount =\t" << std::left << std::setw(10) << VetoEventCount.GetValue() << '\t'
+		  << "BulkEventCount =\t" << std::left << std::setw(10) << BulkEventCount.GetValue() << '\t'
+		  << "DetectableEventCount =\t" << std::left << std::setw(10) << DetectableEventCount.GetValue() << '\t'
+		  << "VetoPossibleEventCount =\t" << std::left << std::setw(10) << VetoPossibleEvtCount.GetValue() << '\t'
+		  << "VetoEfficiency =\t" << std::left << std::setw(5) << eff << G4endl;
+
 	  output.close();
 	  //std::DecimalFormat df1 = new DecimalFormat("0.0");
   }

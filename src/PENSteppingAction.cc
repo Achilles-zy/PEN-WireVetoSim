@@ -29,7 +29,7 @@ void PENSteppingAction::UserSteppingAction(const G4Step* aStep)
 	auto particle_name = aStep->GetTrack()->GetParticleDefinition()->GetParticleName();
 
 	auto edep = aStep->GetTotalEnergyDeposit();
-	if (PENEvent->GetPhotonCnt() > 3 && particle_name == "opticalphoton") {
+	if (PENEvent->GetSiPMPhotonCnt() > 3 && particle_name == "opticalphoton") {
 		aStep->GetTrack()->SetTrackStatus(fStopAndKill);
 	}
 
@@ -40,6 +40,10 @@ void PENSteppingAction::UserSteppingAction(const G4Step* aStep)
 	if (volume == detectorConstruction->GetBulk() && particle_name != "opticalphoton") {
 		//PENEvent->BulkTrue();
 		PENEvent->AddBulkEnergy(edep);
+	}
+	
+	if (volume == detectorConstruction->GetEnv() && particle_name == "opticalphoton") {
+		PENEvent->DetectableTrue();
 	}
 
 	for (int i = 0; i <= 11; i++) {
